@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="run_beacon">RUN BEACON</string>
     <string name="stop_beacon">STOP BEACON</string>
+    <string name="TAG_DEVICES">BluetoothLeDevices</string>
 
 </resources>

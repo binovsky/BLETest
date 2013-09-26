@@ -10,17 +10,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends Activity
 {
-
-	private final static int	REQUEST_ENABLE_BT			= 1;
+	private final static int	INTENT_ID_REQUEST_ENABLE_BT	= 1;
+	private final static int	INTENT_ID_DISCOVERABLE		= 2;
 	private final static int	DISCOVERABLE_TIMEINTERVAL	= 999;
 
-	final Context				context						= this;
+	private Handler				mHandler;
+	private LeDeviceListAdapter	mLeDeviceListAdapter;
+	private final Context		context						= this;
 
 	private BluetoothAdapter	mBluetoothAdapter;
 	private Button				btn;
@@ -88,7 +92,7 @@ public class MainActivity extends Activity
 		{
 			Intent enableBtIntent = new Intent(
 					BluetoothAdapter.ACTION_REQUEST_ENABLE );
-			startActivityForResult( enableBtIntent, REQUEST_ENABLE_BT );
+			startActivityForResult( enableBtIntent, INTENT_ID_REQUEST_ENABLE_BT );
 			btn.setText( R.string.stop_beacon );
 		}
 		else
@@ -97,26 +101,56 @@ public class MainActivity extends Activity
 			getMBluetoothAdapter( ).disable( );
 			btn.setText( R.string.run_beacon );
 		}
-
-		// getMBluetoothAdapter().startLeScan(callback)
 	}
 
 	protected void onActivityResult( int requestCode, int resultCode,
 			Intent data )
 	{
-		if ( resultCode == DISCOVERABLE_TIMEINTERVAL )
+		if ( requestCode == INTENT_ID_DISCOVERABLE )
 		{
+			if ( resultCode == RESULT_CANCELED )
+			{
+				getMBluetoothAdapter( ).disable( );
+				btn.setText( R.string.run_beacon );
+				
+				return;
+			}
+			mHandler = new Handler( );
+			mHandler.postDelayed( new Runnable( )
+			{
+				@Override
+				public void run( )
+				{
+					getMBluetoothAdapter( ).stopLeScan( lescanCallback );
+					getMBluetoothAdapter( ).disable( );
+					btn.setText( R.string.run_beacon );
+				}
+			}, DISCOVERABLE_TIMEINTERVAL );
+
 			if ( !getMBluetoothAdapter( ).startLeScan( lescanCallback ) )
+			{
 				showNoBLEAlert( );
+				getMBluetoothAdapter( ).stopLeScan( lescanCallback );
+				getMBluetoothAdapter( ).disable( );
+				btn.setText( R.string.run_beacon );
+			}
 		}
-		else if ( resultCode != RESULT_CANCELED )
+		else if ( requestCode == INTENT_ID_REQUEST_ENABLE_BT )
 		{
+			if ( resultCode == RESULT_CANCELED )
+			{
+				getMBluetoothAdapter( ).disable( );
+				btn.setText( R.string.run_beacon );
+				
+				return;
+			}
+			
 			Intent discoverableIntent = new Intent(
 					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
 			discoverableIntent.putExtra(
 					BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,
 					DISCOVERABLE_TIMEINTERVAL );
-			startActivity( discoverableIntent );
+			startActivityForResult( discoverableIntent, INTENT_ID_DISCOVERABLE );
 		}
 		else if ( resultCode == RESULT_CANCELED )
 		{
@@ -160,7 +194,7 @@ public class MainActivity extends Activity
 		alertDialogBuilder.setTitle( "Error" );
 
 		// set dialog message
-		alertDialogBuilder.setMessage( "NO BSmart Bluetooth adapter!" )
+		alertDialogBuilder.setMessage( "NO Smart Bluetooth adapter presented in your device!" )
 				.setCancelable( false )
 				.setPositiveButton( "OK", new DialogInterface.OnClickListener( )
 				{
@@ -180,10 +214,23 @@ public class MainActivity extends Activity
 	}
 
 	private LeScanCallback	lescanCallback	= new LeScanCallback( )
-	{
-		@Override
-		public void onLeScan( BluetoothDevice device, int rssi, byte[] scanRecord )
-		{
-		}
-	};
+											{
+												@Override
+												public void onLeScan(
+														BluetoothDevice device,
+														int rssi,
+														byte[] scanRecord )
+												{
+													mLeDeviceListAdapter
+															.addDevice( device );
+													mLeDeviceListAdapter
+															.notifyDataSetChanged( );
+
+													Log.v( context
+															.getString( R.string.TAG_DEVICES ),
+															device.getName( )
+																	+ " "
+																	+ rssi );
+												}
+											};
 }

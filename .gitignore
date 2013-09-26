@@ -18,3 +18,15 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+
+.class
+/bin/classes/com/binovsky/bletest/R$style.class
+/bin/classes/com/binovsky/bletest/R$string.class
+/bin/classes/com/binovsky/bletest/MainActivity.class
+/bin/classes/com/binovsky/bletest/MainActivity$3.class
+/bin/classes/com/binovsky/bletest/MainActivity$2.class
+/bin/classes/com/binovsky/bletest/MainActivity$1.class
+/bin/resources.ap_
+/bin/classes.dex
+/bin/BLETest.apk
+/gen/com/binovsky/bletest/R.java

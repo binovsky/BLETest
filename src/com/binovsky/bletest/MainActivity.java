@@ -112,7 +112,7 @@ public class MainActivity extends Activity
 			{
 				getMBluetoothAdapter( ).disable( );
 				btn.setText( R.string.run_beacon );
-				
+
 				return;
 			}
 			mHandler = new Handler( );
@@ -141,10 +141,10 @@ public class MainActivity extends Activity
 			{
 				getMBluetoothAdapter( ).disable( );
 				btn.setText( R.string.run_beacon );
-				
+
 				return;
 			}
-			
+
 			Intent discoverableIntent = new Intent(
 					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
 			discoverableIntent.putExtra(
@@ -194,7 +194,9 @@ public class MainActivity extends Activity
 		alertDialogBuilder.setTitle( "Error" );
 
 		// set dialog message
-		alertDialogBuilder.setMessage( "NO Smart Bluetooth adapter presented in your device!" )
+		alertDialogBuilder
+				.setMessage(
+						"NO Smart Bluetooth adapter presented in your device!" )
 				.setCancelable( false )
 				.setPositiveButton( "OK", new DialogInterface.OnClickListener( )
 				{

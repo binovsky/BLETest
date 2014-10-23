@@ -1,4 +1,4 @@
 BLETest
 =======
 
-Smart Bluetooth for Android 4.3 test
+Smart Bluetooth Tester for Android 4.3 test
